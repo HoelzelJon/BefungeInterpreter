@@ -257,6 +257,7 @@ public class Interpreter {
      * @return a character input by the user
      */
     private char getUserChar(){
+        out.println();
         out.print("Enter a character: ");
         String s = in.nextLine();
         if (s.length() == 1) return s.charAt(0);
@@ -270,6 +271,7 @@ public class Interpreter {
      * @return an integer input by the user
      */
     private int getUserInt(){
+        out.println();
         out.print("Enter an integer: ");
         int ret;
         String s = in.nextLine();
