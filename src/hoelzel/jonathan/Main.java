@@ -59,5 +59,6 @@ public class Main {
                 else System.out.println("Unrecognized command. Try \"help\" for a list of commands.");
             }
         }
+        System.out.println("The program has ended.");
     }
 }
