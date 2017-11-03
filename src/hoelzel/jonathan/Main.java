@@ -31,14 +31,8 @@ public class Main {
         boolean running = false;
         boolean runningSteps = false;
         int steps = -1;
-        int runWait = 5;
         while (!inter.done()){
             if (running && !(runningSteps && steps <= 0)) {
-                try {
-                    Thread.sleep(runWait);
-                } catch (InterruptedException ex){
-                    // do nothing
-                }
                 if (runningSteps) steps --;
                 inter.step();
             }
