@@ -64,6 +64,15 @@ public class Interpreter {
                 Character c = (i == y && j == x)? 'X' : row.get(j);
                 builder.append(c);
             }
+
+            // add X later if it is past the end of the row
+            if (i == y && x >= row.size()){
+                for (int n = row.size(); n < x; n ++){
+                    builder.append(' ');
+                }
+                builder.append('X');
+            }
+
             builder.append('\n');
         }
 
