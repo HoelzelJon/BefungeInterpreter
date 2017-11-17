@@ -1,5 +1,7 @@
 package hoelzel.jonathan;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -8,8 +10,6 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-
         if (args.length < 1){
             System.out.println("Please include a file to interpret");
             return;
@@ -25,8 +25,13 @@ public class Main {
             return;
         }
 
+        Scanner in = new Scanner(System.in);
+
+        JFrame frame = new JFrame(path);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
         String code = new String(encoded, Charset.defaultCharset());
-        Interpreter inter = new Interpreter(code, System.in, System.out);
+        Interpreter inter = new Interpreter(code, frame, in, System.out);
 
         boolean running = false;
         boolean runningSteps = false;
@@ -39,6 +44,7 @@ public class Main {
             else {
                 System.out.print(">> ");
                 String input = in.nextLine();
+                if (input.length() == 0) continue;
                 if (input.equalsIgnoreCase("S") || input.equalsIgnoreCase("step")){
                     inter.step();
                 } else if (input.equalsIgnoreCase("r") || input.equalsIgnoreCase("run")){
@@ -66,7 +72,7 @@ public class Main {
                     System.out.println("Commands: \n" +
                             " (r)un [x]: runs the program for x steps (if no x provided, program runs until termination)\n" +
                             " (s)tep : advances 1 step through the program\n" +
-                            " (p)rint : print out the current state of the program\n" +
+                            " (p)rint : print out the current stack\n" +
                             " (q)uit : quits the program");
                 }
                 else System.out.println("Unrecognized command. Try \"help\" for a list of commands.");
@@ -74,5 +80,8 @@ public class Main {
         }
         System.out.println();
         System.out.println("The program has ended.");
+
+        //frame.dispose();
+        in.close();
     }
 }

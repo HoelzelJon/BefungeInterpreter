@@ -1,17 +1,18 @@
 package hoelzel.jonathan;
 
-import java.io.InputStream;
+import javax.swing.*;
+import java.awt.*;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.List;
 
 public class Interpreter {
-
     private enum Dir{
         UP, DOWN, LEFT, RIGHT
     }
 
-    private ArrayList<ArrayList<Character>> grid;
-    private ArrayList<Integer> stack = new ArrayList<Integer>();
+    private List<List<Character>> grid;
+    private List<Integer> stack = new ArrayList<Integer>();
     private int x = 0;
     private int y = 0;
     private int height;
@@ -22,12 +23,17 @@ public class Interpreter {
     private PrintStream out;
     private boolean done = false;
 
-    public Interpreter(String code, InputStream inStream, PrintStream outStream){
+    private JFrame frame;
+
+    public Interpreter(String code, JFrame jframe, Scanner scan, PrintStream outStream){
+        frame = jframe;
+        frame.add(new InterpreterComponent());
+
         out = outStream;
-        in = new Scanner(inStream);
+        in = scan;
 
         String[] lines = code.split(System.getProperty("line.separator"));
-        grid = new ArrayList<ArrayList<Character>>();
+        grid = new ArrayList<List<Character>>();
         height = lines.length;
         width = 0;
         for (String line : lines){
@@ -40,6 +46,9 @@ public class Interpreter {
 
             grid.add(new ArrayList<Character>(Arrays.asList(charArr)));
         }
+
+        frame.setSize(500, 500);
+        frame.setVisible(true);
     }
 
     public boolean done(){
@@ -49,32 +58,15 @@ public class Interpreter {
     public void step(){
         if (done) return;
         evalPosition();
-        if (done) return;
-        move();
+        if (!done){
+            move();
+        }
+        frame.repaint();
     }
 
     @Override
     public String toString(){
         StringBuilder builder = new StringBuilder();
-
-        for (int i = 0; i < grid.size(); i ++){
-            ArrayList<Character> row = grid.get(i);
-
-            for (int j = 0; j < row.size(); j ++){
-                Character c = (i == y && j == x)? 'X' : row.get(j);
-                builder.append(c);
-            }
-
-            // add X later if it is past the end of the row
-            if (i == y && x >= row.size()){
-                for (int n = row.size(); n < x; n ++){
-                    builder.append(' ');
-                }
-                builder.append('X');
-            }
-
-            builder.append('\n');
-        }
 
         builder.append("Stack: ");
         for (int n : stack){
@@ -329,6 +321,57 @@ public class Interpreter {
             int temp = stack.get(stack.size() - 1);
             stack.set(stack.size() - 1, stack.get(stack.size() - 2));
             stack.set(stack.size() - 2, temp);
+        }
+    }
+
+    private class InterpreterComponent extends Component {
+        private static final double FONT_MULT = 0.85;
+        private static final double RIGHT_SHIFT_MULT = 0.2;
+        private static final double DOWN_SHIFT_MULT = 0.8;
+
+        @Override
+        public void paint(Graphics g){
+            Graphics2D g2 = (Graphics2D) g;
+
+            Rectangle bounds = getBounds();
+
+            double squareSize = Math.min((double)bounds.height / height, (double)bounds.width / width);
+
+            g2.setColor(Color.CYAN);
+            g2.fillRect((int)(x * squareSize), (int)(y * squareSize), (int)squareSize, (int)squareSize);
+
+            g2.setColor(Color.BLACK);
+            g2.setFont(new Font("Default", Font.PLAIN, (int)(squareSize * FONT_MULT)));
+
+            // draw vertical lines
+            for (int i = 1; i <= width; i ++){
+                int xPos = (int)(i * squareSize);
+                g2.drawLine(xPos, 0, xPos, (int)(squareSize * height));
+            }
+
+            // draw horizontal lines
+            for (int i = 1; i <= height; i ++){
+                int yPos = (int)(i * squareSize);
+                g2.drawLine(0, yPos, (int)(squareSize * width), yPos);
+            }
+
+            int rightShift = (int)(squareSize * RIGHT_SHIFT_MULT);
+            int downShift = (int)(squareSize * DOWN_SHIFT_MULT);
+
+            for (int yPos = 0; yPos < height; yPos ++){
+                List<Character> row = grid.get(yPos);
+                for (int xPos = 0; xPos < row.size(); xPos ++){
+                    char c = row.get(xPos);
+
+                    if (c < ' '){
+                        g2.setColor(Color.RED);
+                        g2.drawString("" + (int)c, (int)(xPos * squareSize) + rightShift, (int)(yPos * squareSize) + downShift);
+                    } else if (c != ' '){
+                        g2.setColor(Color.BLACK);
+                        g2.drawString("" + c, (int)(xPos * squareSize) + rightShift, (int)(yPos * squareSize) + downShift);
+                    }
+                }
+            }
         }
     }
 }
