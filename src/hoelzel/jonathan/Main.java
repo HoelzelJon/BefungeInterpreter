@@ -1,7 +1,6 @@
 package hoelzel.jonathan;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -36,33 +35,65 @@ public class Main {
         boolean running = false;
         boolean runningSteps = false;
         int steps = -1;
+        int runWait = 0;
+
         while (!inter.done()){
             if (running && !(runningSteps && steps <= 0)) {
                 if (runningSteps) steps --;
+
+                if (runWait > 0){
+                    try {
+                        Thread.sleep(runWait);
+                    } catch (InterruptedException ex){
+                        // do nothing
+                    }
+                }
+
                 inter.step();
             }
             else {
+                System.out.println();
                 System.out.print(">> ");
                 String input = in.nextLine();
                 if (input.length() == 0) continue;
                 if (input.equalsIgnoreCase("S") || input.equalsIgnoreCase("step")){
                     inter.step();
                 } else if (input.equalsIgnoreCase("r") || input.equalsIgnoreCase("run")){
-                    runningSteps = false;
-                    running = true;
-                } else if (input.substring(0, 1).equalsIgnoreCase("r") || (input.length() >= 3 && input.substring(0, 3).equalsIgnoreCase("run"))){
-                    String num = input.substring(input.indexOf(' ') + 1);
-                    boolean valid = num.length() > 0;
-                    try {
-                        steps = Integer.parseInt(num);
-                    } catch (NumberFormatException ex) {
-                        valid = false;
+                    boolean validInput = false;
+
+                    while (!validInput) {
+                            System.out.print("Number of steps to run (-1 to run until program ends): ");
+                            if (in.hasNextInt()){
+                                validInput = true;
+                                int numSteps = in.nextInt();
+                                in.nextLine();
+
+                                if (numSteps < 0){
+                                    running = true;
+                                    runningSteps = false;
+                                } else {
+                                    running = true;
+                                    runningSteps = true;
+                                    steps = numSteps;
+                                }
+                            } else {
+                                in.nextLine();
+                                System.out.println("You must input an integer.");
+                            }
                     }
 
-                    if (valid){
-                        runningSteps = true;
-                        running = true;
-                    } else  System.out.println("Invalid command. expected \"(r)un [x]\", where [x] is some integer");
+                    validInput = false;
+                    while (!validInput) {
+                        System.out.print("Time per step (in miliseconds): ");
+                        if (in.hasNextInt()) {
+                            validInput = true;
+                            runWait = in.nextInt();
+                            in.nextLine();
+                        } else {
+                            in.nextLine();
+                            System.out.println("You must input an integer.");
+                        }
+                    }
                 } else if (input.equalsIgnoreCase("q") || input.equalsIgnoreCase("quit")){
                     System.out.println("Quitting the program.");
                     return;
@@ -70,7 +101,7 @@ public class Main {
                     System.out.println(inter);
                 } else if(input.equalsIgnoreCase("h") || input.equalsIgnoreCase("help")){
                     System.out.println("Commands: \n" +
-                            " (r)un [x]: runs the program for x steps (if no x provided, program runs until termination)\n" +
+                            " (r)un : runs the program (either until it ends, or for a user-specified number of steps\n" +
                             " (s)tep : advances 1 step through the program\n" +
                             " (p)rint : print out the current stack\n" +
                             " (q)uit : quits the program");

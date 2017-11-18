@@ -273,15 +273,18 @@ public class Interpreter {
      */
     private int getUserInt(){
         out.println();
-        out.print("Enter an integer: ");
-        int ret;
-        String s = in.nextLine();
 
-        try {
-            ret = Integer.parseInt(s);
-        } catch (NumberFormatException ex){
-            out.println("Invalid input.");
-            return getUserInt();
+        boolean validInput = false;
+        int ret = 0;
+
+        while (!validInput){
+            out.print("Enter an integer: ");
+
+            if (in.hasNextInt()){
+                validInput = true;
+                ret = in.nextInt();
+            }
+            in.nextLine();
         }
         return ret;
     }
