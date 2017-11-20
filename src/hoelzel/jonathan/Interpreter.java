@@ -66,6 +66,10 @@ public class Interpreter {
 
     @Override
     public String toString(){
+        return getStackString();
+    }
+
+    private String getStackString(){
         StringBuilder builder = new StringBuilder();
 
         builder.append("Stack: ");
@@ -332,13 +336,20 @@ public class Interpreter {
         private static final double RIGHT_SHIFT_MULT = 0.2;
         private static final double DOWN_SHIFT_MULT = 0.8;
 
+        private static final int STACK_FONT_SIZE = 30;
+        private static final double STACK_HEIGHT_MULT = 1.2;
+        private static final int STACK_HEIGHT = (int)(STACK_FONT_SIZE * STACK_HEIGHT_MULT);
+
         @Override
         public void paint(Graphics g){
             Graphics2D g2 = (Graphics2D) g;
 
             Rectangle bounds = getBounds();
 
-            double squareSize = Math.min((double)bounds.height / height, (double)bounds.width / width);
+            g2.setFont(new Font("Default", Font.PLAIN, STACK_FONT_SIZE));
+            g2.drawString(getStackString(), 0, bounds.height - 10);
+
+            double squareSize = Math.min((double)(bounds.height - STACK_HEIGHT) / height, (double)bounds.width / width);
 
             g2.setColor(Color.CYAN);
             g2.fillRect((int)(x * squareSize), (int)(y * squareSize), (int)squareSize, (int)squareSize);
