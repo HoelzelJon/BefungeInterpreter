@@ -61,12 +61,37 @@ public class Interpreter {
         if (!done){
             move();
         }
+    }
+
+    public void refreshPane(){
         frame.repaint();
     }
 
     @Override
     public String toString(){
-        return getStackString();
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < grid.size(); i ++){
+            List<Character> row = grid.get(i);
+
+            for (int j = 0; j < row.size(); j ++){
+                Character c = (i == y && j == x)? 'X' : row.get(j);
+                builder.append(c);
+            }
+
+            // add X later if it is past the end of the row
+            if (i == y && x >= row.size()){
+                for (int n = row.size(); n < x; n ++){
+                    builder.append(' ');
+                }
+                builder.append('X');
+            }
+
+            builder.append('\n');
+        }
+
+        builder.append(getStackString());
+        return builder.toString();
     }
 
     private String getStackString(){
@@ -169,15 +194,15 @@ public class Interpreter {
                     move();
                     break;
                 case 'g':
-                    int y = popStack();
-                    int x = popStack();
-                    pushStack(getGridVal(x, y));
+                    int yCoord = popStack();
+                    int xCoord = popStack();
+                    pushStack(getGridVal(xCoord, yCoord));
                     break;
                 case 'p':
-                    y = popStack();
-                    x = popStack();
+                    yCoord = popStack();
+                    xCoord = popStack();
                     char v = (char)popStack();
-                    setGridVal(x, y, v);
+                    setGridVal(xCoord, yCoord, v);
                     break;
                 case '&':
                     pushStack(getUserInt());
@@ -192,7 +217,7 @@ public class Interpreter {
                     try {
                         pushStack(Integer.parseInt("" + gridVal));
                     } catch (NumberFormatException ex){
-                        //out.println("Warning: illegal command executed");
+                        out.println("Warning: encountered an illegal command at (" + x + ", " + y + ")");
                     }
                     break;
             }
@@ -347,7 +372,19 @@ public class Interpreter {
             Rectangle bounds = getBounds();
 
             g2.setFont(new Font("Default", Font.PLAIN, STACK_FONT_SIZE));
-            g2.drawString(getStackString(), 0, bounds.height - 10);
+
+            String stackString = "ERROR";
+            boolean gotString = false;
+            while (!gotString){
+                boolean failed = false;
+                try {
+                    stackString = getStackString();
+                } catch (ConcurrentModificationException ex){
+                    failed = true;
+                }
+                gotString = !failed;
+            }
+            g2.drawString(stackString, 0, bounds.height - 10);
 
             double squareSize = Math.min((double)(bounds.height - STACK_HEIGHT) / height, (double)bounds.width / width);
 
@@ -355,7 +392,8 @@ public class Interpreter {
             g2.fillRect((int)(x * squareSize), (int)(y * squareSize), (int)squareSize, (int)squareSize);
 
             g2.setColor(Color.BLACK);
-            g2.setFont(new Font("Default", Font.PLAIN, (int)(squareSize * FONT_MULT)));
+            Font gridFont = new Font("Default", Font.PLAIN, (int)(squareSize * FONT_MULT));
+            g2.setFont(gridFont);
 
             // draw vertical lines
             for (int i = 1; i <= width; i ++){
@@ -377,7 +415,7 @@ public class Interpreter {
                 for (int xPos = 0; xPos < row.size(); xPos ++){
                     char c = row.get(xPos);
 
-                    if (c < ' '){
+                    if (!gridFont.canDisplay(c)){
                         g2.setColor(Color.RED);
                         g2.drawString("" + (int)c, (int)(xPos * squareSize) + rightShift, (int)(yPos * squareSize) + downShift);
                     } else if (c != ' '){

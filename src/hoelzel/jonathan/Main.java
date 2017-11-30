@@ -50,36 +50,38 @@ public class Main {
                 }
 
                 inter.step();
+                inter.refreshPane();
             }
             else {
                 System.out.println();
                 System.out.print(">> ");
                 String input = in.nextLine();
                 if (input.length() == 0) continue;
-                if (input.equalsIgnoreCase("S") || input.equalsIgnoreCase("step")){
+                if (input.equalsIgnoreCase("S") || input.equalsIgnoreCase("step")) {
                     inter.step();
-                } else if (input.equalsIgnoreCase("r") || input.equalsIgnoreCase("run")){
+                    inter.refreshPane();
+                } else if (input.equalsIgnoreCase("r") || input.equalsIgnoreCase("run")) {
                     boolean validInput = false;
 
                     while (!validInput) {
-                            System.out.print("Number of steps to run (-1 to run until program ends): ");
-                            if (in.hasNextInt()){
-                                validInput = true;
-                                int numSteps = in.nextInt();
-                                in.nextLine();
+                        System.out.print("Number of steps to run (-1 to run until program ends): ");
+                        if (in.hasNextInt()) {
+                            validInput = true;
+                            int numSteps = in.nextInt();
+                            in.nextLine();
 
-                                if (numSteps < 0){
-                                    running = true;
-                                    runningSteps = false;
-                                } else {
-                                    running = true;
-                                    runningSteps = true;
-                                    steps = numSteps;
-                                }
+                            if (numSteps < 0) {
+                                running = true;
+                                runningSteps = false;
                             } else {
-                                in.nextLine();
-                                System.out.println("You must input an integer.");
+                                running = true;
+                                runningSteps = true;
+                                steps = numSteps;
                             }
+                        } else {
+                            in.nextLine();
+                            System.out.println("You must input an integer.");
+                        }
                     }
 
                     validInput = false;
@@ -94,25 +96,26 @@ public class Main {
                             System.out.println("You must input an integer.");
                         }
                     }
-                } else if (input.equalsIgnoreCase("q") || input.equalsIgnoreCase("quit")){
+                } else if (input.equalsIgnoreCase("q") || input.equalsIgnoreCase("quit")) {
                     System.out.println("Quitting the program.");
+                    in.close();
                     return;
-                } else if (input.equalsIgnoreCase("p") || input.equalsIgnoreCase("print")){
+                } else if (input.equalsIgnoreCase("p") || input.equalsIgnoreCase("print")) {
                     System.out.println(inter);
                 } else if(input.equalsIgnoreCase("h") || input.equalsIgnoreCase("help")){
                     System.out.println("Commands: \n" +
-                            " (r)un : runs the program (either until it ends, or for a user-specified number of steps\n" +
+                            " (r)un : runs the program (either until it ends, or for a user-specified number of steps)\n" +
                             " (s)tep : advances 1 step through the program\n" +
-                            " (p)rint : print out the current stack\n" +
+                            " (p)rint : print out the current state of the program\n" +
                             " (q)uit : quits the program");
                 }
                 else System.out.println("Unrecognized command. Try \"help\" for a list of commands.");
             }
         }
+        inter.refreshPane();
         System.out.println();
         System.out.println("The program has ended.");
 
-        //frame.dispose();
         in.close();
     }
 }
