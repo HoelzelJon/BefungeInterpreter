@@ -20,7 +20,7 @@ public class Main {
         try{
             encoded = Files.readAllBytes(Paths.get(path));
         } catch (IOException ex){
-            System.out.println("Error reading from file");
+            System.out.println("Error reading from file.");
             return;
         }
 
@@ -106,7 +106,7 @@ public class Main {
                     System.out.println("Commands: \n" +
                             " (r)un : runs the program (either until it ends, or for a user-specified number of steps)\n" +
                             " (s)tep : advances 1 step through the program\n" +
-                            " (p)rint : print out the current state of the program\n" +
+                            " (p)rint : print out the current state of the program (\"X\" represents the current position)\n" +
                             " (q)uit : quits the program");
                 }
                 else System.out.println("Unrecognized command. Try \"help\" for a list of commands.");
